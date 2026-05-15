@@ -1,3 +1,4 @@
+import { render } from '@testing-library/react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
@@ -17,11 +18,21 @@ scene.add(cubeMesh)
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight,
   0.5,
-  200)
+  400)
+
+
+const aspectRatio = window.innerWidth / window.innerHeight
+
+//const camera = new THREE.OrthographicCamera(
+ // -1 * aspectRatio,
+ // 1 * aspectRatio,
+ // 1,
+ // -1,
+ // 0.1,
+ // 200
+//)
 
 camera.position.z = 5
-
-
 
 const canvas = document.querySelector('canvas.threejs')
 
@@ -29,20 +40,35 @@ const renderer = new THREE.WebGLRenderer({
   canvas: canvas
 })
 
+renderer.setSize(window.innerWidth, window.innerHeight);
+const maxPixelRatio = Math.min(window.devicePixelRatio, 2);
+renderer.setPixelRatio(window.devicePixelRatio)
 
 const controls = new OrbitControls( camera, canvas)
+controls.enableDamping = true;
+controls.autoRotate = true;
+
+
+window.addEventListener('resize', () => {
+   camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+})
 
 const renderLoop = () => {
+  controls.update()
+    renderer.render(scene, camera)
     window.requestAnimationFrame(renderLoop);
     
 }
 
-console.log(renderLoop)
+renderLoop()
 
 
-controls.update()
+
 
 scene.add(camera)
 
-renderer.setSize(window.innerWidth, window.innerHeight)
+
 renderer.render(scene, camera)
+
